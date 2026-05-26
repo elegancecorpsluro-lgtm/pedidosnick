@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Ventas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5F0;
+  --surface: #FFFFFF;
+  --surface2: #F0EDE6;
+  --border: #E2DDD4;
+  --border2: #CBC5BA;
+  --text: #1A1916;
+  --text2: #6B6760;
+  --text3: #A09C95;
+  --accent: #2D5016;
+  --accent-light: #EAF3DE;
+  --accent-text: #3B6D11;
+  --amber: #BA7517;
+  --amber-light: #FAEEDA;
+  --red: #A32D2D;
+  --red-light: #FCEBEB;
+  --blue: #185FA5;
+  --blue-light: #E6F1FB;
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.layout { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 1.5rem 1rem; display: flex; flex-direction: column; position: fixed; height: 100vh; top: 0; left: 0; z-index: 10; }
+.logo { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; padding: 0 0.5rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+.logo span { display: block; font-size: 11px; font-weight: 400; color: var(--text3); margin-top: 2px; letter-spacing: 0; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius); cursor: pointer; font-size: 14px; color: var(--text2); transition: all 0.15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; font-family: inherit; }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 11px; color: var(--text3); padding-left: 0.5rem; line-height: 1.5; }
+
+/* MAIN */
+.main { margin-left: 220px; flex: 1; padding: 2rem; max-width: 900px; }
+.page-header { margin-bottom: 2rem; }
+.page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.4px; }
+.page-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+/* PANELS */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* CONFIG BANNER */
+.config-banner { background: var(--amber-light); border: 1px solid #F0C070; border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--amber); margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 10px; }
+.config-banner svg { flex-shrink: 0; margin-top: 1px; }
+
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+.card-title { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; }
+.metric-label { font-size: 12px; color: var(--text3); margin-bottom: 6px; }
+.metric-value { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; font-family: 'DM Mono', monospace; }
+.metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* FORM */
+.field-label { font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 6px; display: block; }
+textarea, input, select { width: 100%; padding: 10px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface2); color: var(--text); transition: border-color 0.15s; }
+textarea { font-family: 'DM Mono', monospace; min-height: 150px; resize: vertical; font-size: 12px; line-height: 1.6; }
+textarea:focus, input:focus, select:focus { outline: none; border-color: var(--border2); background: var(--surface); }
+
+/* BUTTONS */
+.btn-row { display: flex; gap: 8px; margin-top: 1rem; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 500; border-radius: var(--radius); cursor: pointer; transition: all 0.15s; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.btn:hover { background: var(--surface2); border-color: var(--border2); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+.btn.primary:hover { opacity: 0.85; }
+.btn svg { width: 14px; height: 14px; }
+
+/* PARSED */
+.parsed-box { background: var(--surface2); border-radius: var(--radius); overflow: hidden; margin-top: 1rem; }
+.parsed-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.parsed-row:last-child { border-bottom: none; }
+.parsed-row .lbl { color: var(--text2); }
+.parsed-row .val { font-weight: 500; }
+.prod-table { width: 100%; margin-top: 1rem; }
+.prod-head { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; padding: 6px 14px; font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+.prod-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; padding: 9px 14px; font-size: 13px; border-bottom: 1px solid var(--border); }
+.prod-row:last-child { border-bottom: none; }
+.prod-name { font-weight: 500; }
+.prod-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.prod-qty { color: var(--text2); text-align: right; }
+.prod-price { font-weight: 500; text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 8px 12px; color: var(--text3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface2); }
+
+/* BADGES */
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+.badge-new { background: var(--accent-light); color: var(--accent-text); }
+.badge-rec { background: var(--blue-light); color: var(--blue); }
+.badge-pend { background: var(--amber-light); color: var(--amber); }
+.badge-done { background: var(--accent-light); color: var(--accent-text); }
+
+/* STATUS */
+.dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.dot-pend { background: var(--amber); }
+.dot-done { background: var(--accent-text); }
+
+/* AVATAR */
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blue-light); color: var(--blue); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+/* FEEDBACK */
+.feedback-ok { background: var(--accent-light); border: 1px solid #B0D88A; border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--accent-text); margin-top: 1rem; display: flex; align-items: center; gap: 8px; }
+.feedback-err { background: var(--red-light); border: 1px solid #F0A0A0; border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--red); margin-top: 1rem; display: flex; align-items: center; gap: 8px; }
+
+/* LOADING */
+.loading { display: flex; align-items: center; gap: 10px; color: var(--text2); font-size: 13px; padding: 1.5rem 0; }
+.spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--text); border-radius: 50%; animation: spin 0.6s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* PROGRESS */
+.prog-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 6px; }
+.prog-fill { height: 100%; border-radius: 2px; background: var(--accent-text); }
+
+/* TOP LIST */
+.top-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.top-item:last-child { border-bottom: none; }
+.top-item-name { font-size: 13px; flex: 1; margin-right: 12px; }
+.top-item-count { font-size: 13px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--text2); }
+
+/* EMPTY */
+.empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
+.empty svg { width: 32px; height: 32px; margin: 0 auto 12px; display: block; opacity: 0.4; }
+
+/* CONFIG PANEL */
+.config-field { margin-bottom: 1.25rem; }
+.config-note { font-size: 12px; color: var(--text3); margin-top: 6px; line-height: 1.5; }
+
+/* INSIGHTS */
+.insight-text { font-size: 14px; line-height: 1.7; color: var(--text); }
+
+/* CHARTS GRID */
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+
+/* MOBILE */
+@media (max-width: 700px) {
+  .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; flex-wrap: wrap; padding: 1rem; }
+  .main { margin-left: 0; padding: 1rem; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: 1fr 1fr; }
+  .layout { flex-direction: column; }
+  .sidebar-footer { display: none; }
+  .logo { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .nav-item { padding: 7px 10px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      Panel de Ventas
+      <span>Seguimiento de pedidos</span>
+    </div>
+    <button class="nav-item active" onclick="nav('ingresar', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+      Ingresar pedido
+    </button>
+    <button class="nav-item" onclick="nav('pedidos', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+      Pedidos
+    </button>
+    <button class="nav-item" onclick="nav('clientes', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
+      Clientes
+    </button>
+    <button class="nav-item" onclick="nav('dashboard', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="13" width="4" height="8"/><rect x="10" y="8" width="4" height="13"/><rect x="17" y="3" width="4" height="18"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" onclick="nav('config', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Configuración
+    </button>
+    <div class="sidebar-footer">
+      Guardado local<br>+ Google Sheets (opcional)
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- INGRESAR PEDIDO -->
+    <div id="panel-ingresar" class="panel active">
+      <div class="page-header">
+        <div class="page-title">Ingresar pedido</div>
+        <div class="page-sub">Pegá el texto de WhatsApp y la IA extrae todo automáticamente</div>
+      </div>
+      <div id="api-warning" class="config-banner" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <div>Falta configurar la API Key de Anthropic. Andá a <strong>Configuración</strong> para ingresarla.</div>
+      </div>
+      <div class="card">
+        <label class="field-label">Texto del pedido (WhatsApp)</label>
+        <textarea id="order-input" placeholder="🛒 ¡Nuevo pedido de *Pedido 3*!
+🏪 *Retiro en tienda*
+*Detalle del pedido:*
+- Aceite de oliva extravirgen 500ml - Crisari Pack x12u ($5800 c/u)
+  1 x $69.600: $69.600
+...
+💰 Total: $203.900"></textarea>
+        <div class="btn-row">
+          <button class="btn primary" onclick="parseOrder()" id="parse-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            Procesar con IA
+          </button>
+          <button class="btn" onclick="clearInput()">Limpiar</button>
+        </div>
+        <div id="parse-loading" style="display:none" class="loading">
+          <div class="spinner"></div> La IA está interpretando el pedido...
+        </div>
+      </div>
+
+      <div id="parsed-section" style="display:none">
+        <div class="card">
+          <div class="card-title">Pedido interpretado</div>
+          <div id="parsed-header"></div>
+          <div id="parsed-products"></div>
+          <div class="btn-row">
+            <button class="btn primary" onclick="saveParsed()" id="save-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Guardar pedido
+            </button>
+            <button class="btn" onclick="document.getElementById('parsed-section').style.display='none'">Cancelar</button>
+          </div>
+          <div id="save-feedback"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PEDIDOS -->
+    <div id="panel-pedidos" class="panel">
+      <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+        <div>
+          <div class="page-title">Pedidos</div>
+          <div class="page-sub">Historial completo</div>
+        </div>
+        <button class="btn" onclick="renderOrders()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Actualizar
+        </button>
+      </div>
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div class="table-wrap" id="orders-wrap">
+          <div class="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+            Cargando pedidos...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div id="panel-clientes" class="panel">
+      <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+        <div>
+          <div class="page-title">Clientes</div>
+          <div class="page-sub">Antigüedad, recurrencia y facturación</div>
+        </div>
+        <button class="btn" onclick="renderClients()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Actualizar
+        </button>
+      </div>
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div class="table-wrap" id="clients-wrap">
+          <div class="empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+            Cargando clientes...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="panel-dashboard" class="panel">
+      <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Rendimiento general del negocio</div>
+        </div>
+        <button class="btn" onclick="loadDashboard()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Actualizar
+        </button>
+      </div>
+      <div id="metrics-wrap"></div>
+      <div class="charts-grid" id="charts-grid" style="display:none;">
+        <div class="card">
+          <div class="card-title">Productos más vendidos</div>
+          <div id="top-prods"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Clientes nuevos por semana</div>
+          <div id="weekly-clients"></div>
+        </div>
+      </div>
+      <div class="card" id="insights-card" style="display:none; margin-top:0;">
+        <div class="card-title">Análisis de IA</div>
+        <button class="btn" onclick="getInsights()" id="insights-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Generar análisis del negocio
+        </button>
+        <div id="insights-out" class="insight-text" style="margin-top:1rem;"></div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div id="panel-config" class="panel">
+      <div class="page-header">
+        <div class="page-title">Configuración</div>
+        <div class="page-sub">Ingresá tu API Key para activar la IA</div>
+      </div>
+      <div class="card">
+        <div class="card-title">API Key de Anthropic</div>
+        <div class="config-field">
+          <label class="field-label">Tu API Key</label>
+          <input type="password" id="api-key-input" placeholder="sk-ant-..." />
+          <div class="config-note">
+            Conseguí tu API Key en <strong>console.anthropic.com</strong> → API Keys → Create Key.<br>
+            Se guarda solo en tu navegador, no se envía a ningún servidor externo.
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" onclick="saveApiKey()">Guardar API Key</button>
+          <button class="btn" onclick="testApiKey()">Probar conexión</button>
+        </div>
+        <div id="api-feedback"></div>
+      </div>
+      <div class="card" style="margin-top:0;">
+        <div class="card-title">Datos</div>
+        <div class="config-field">
+          <div style="font-size:13px; color:var(--text2); margin-bottom:12px;">Todos los pedidos y clientes se guardan en tu navegador (localStorage). Podés exportarlos en cualquier momento.</div>
+          <div class="btn-row">
+            <button class="btn" onclick="exportData()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Exportar JSON
+            </button>
+            <button class="btn" onclick="clearAllData()" style="color:var(--red);">Borrar todos los datos</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── STORAGE ──────────────────────────────────────────────
+function getOrders() { try { return JSON.parse(localStorage.getItem('pv_orders') || '[]'); } catch { return []; } }
+function getClients() { try { return JSON.parse(localStorage.getItem('pv_clients') || '[]'); } catch { return []; } }
+function saveOrders(d) { localStorage.setItem('pv_orders', JSON.stringify(d)); }
+function saveClients(d) { localStorage.setItem('pv_clients', JSON.stringify(d)); }
+function getApiKey() { return localStorage.getItem('pv_apikey') || ''; }
+
+// ── NAV ───────────────────────────────────────────────────
+function nav(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'pedidos') renderOrders();
+  if (name === 'clientes') renderClients();
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'config') loadConfig();
+}
+
+// ── API CALL ──────────────────────────────────────────────
+async function callClaude(messages, system) {
+  const key = getApiKey();
+  if (!key) { document.getElementById('api-warning').style.display='flex'; throw new Error('Sin API Key'); }
+  const body = { model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages };
+  if (system) body.system = system;
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Error de API'); }
+  const data = await res.json();
+  return data.content.map(b => b.text || '').join('');
+}
+
+// ── PARSE ORDER ──────────────────────────────────────────
+let parsedOrder = null;
+
+async function parseOrder() {
+  const text = document.getElementById('order-input').value.trim();
+  if (!text) { alert('Pegá el texto del pedido primero.'); return; }
+  const btn = document.getElementById('parse-btn');
+  btn.disabled = true;
+  document.getElementById('parse-loading').style.display = 'flex';
+  document.getElementById('parsed-section').style.display = 'none';
+
+  const system = `Extraé datos de pedidos. Respondé SOLO con JSON válido sin backticks ni texto extra.
+Formato:
+{"numero_pedido":"string","nombre_cliente":"string","tipo_entrega":"Retiro en tienda|Envío local|Otro","productos":[{"nombre":"string","marca":"string","presentacion":"string","cantidad":1,"precio_unitario":0,"subtotal":0}],"envio":0,"total":0}
+Campos faltantes = null.`;
+
+  try {
+    const raw = await callClaude([{ role: 'user', content: text }], system);
+    const clean = raw.replace(/```json|```/g, '').trim();
+    parsedOrder = JSON.parse(clean);
+    parsedOrder._fecha = new Date().toLocaleDateString('es-AR');
+    renderParsed();
+  } catch(e) {
+    document.getElementById('parsed-section').innerHTML = `<div class="feedback-err">No se pudo interpretar el pedido: ${e.message}</div>`;
+    document.getElementById('parsed-section').style.display = 'block';
+  }
+  btn.disabled = false;
+  document.getElementById('parse-loading').style.display = 'none';
+}
+
+function renderParsed() {
+  const o = parsedOrder;
+  document.getElementById('parsed-header').innerHTML = `
+    <div class="parsed-box">
+      <div class="parsed-row"><span class="lbl">Número</span><span class="val">${o.numero_pedido||'-'}</span></div>
+      <div class="parsed-row"><span class="lbl">Cliente</span><span class="val">${o.nombre_cliente||'-'}</span></div>
+      <div class="parsed-row"><span class="lbl">Entrega</span><span class="val">${o.tipo_entrega||'-'}</span></div>
+      <div class="parsed-row"><span class="lbl">Fecha</span><span class="val">${o._fecha}</span></div>
+      <div class="parsed-row"><span class="lbl">Envío</span><span class="val">$${(o.envio||0).toLocaleString('es-AR')}</span></div>
+      <div class="parsed-row"><span class="lbl">Total</span><span class="val" style="color:var(--accent-text); font-size:15px;">$${(o.total||0).toLocaleString('es-AR')}</span></div>
+    </div>`;
+
+  let h = '<div class="prod-table"><div class="prod-head"><span>Producto</span><span>Cant.</span><span>Subtotal</span></div>';
+  (o.productos||[]).forEach(p => {
+    h += `<div class="prod-row">
+      <div><div class="prod-name">${p.nombre||'-'}</div><div class="prod-sub">${[p.marca,p.presentacion].filter(Boolean).join(' · ')}</div></div>
+      <div class="prod-qty">${p.cantidad||1}</div>
+      <div class="prod-price">$${(p.subtotal||0).toLocaleString('es-AR')}</div>
+    </div>`;
+  });
+  h += '</div>';
+  document.getElementById('parsed-products').innerHTML = h;
+  document.getElementById('parsed-section').style.display = 'block';
+  document.getElementById('save-feedback').innerHTML = '';
+}
+
+function saveParsed() {
+  if (!parsedOrder) return;
+  const orders = getOrders();
+  const o = parsedOrder;
+  const newOrder = {
+    id: Date.now(),
+    numero: o.numero_pedido || `P${orders.length + 1}`,
+    fecha: o._fecha,
+    cliente: o.nombre_cliente || 'Sin nombre',
+    tipo_entrega: o.tipo_entrega || '-',
+    productos: o.productos || [],
+    envio: o.envio || 0,
+    total: o.total || 0,
+    estado: 'Pendiente'
+  };
+  orders.push(newOrder);
+  saveOrders(orders);
+  upsertClient(newOrder);
+  document.getElementById('save-feedback').innerHTML = `<div class="feedback-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg> Pedido guardado correctamente.</div>`;
+  parsedOrder = null;
+  setTimeout(() => { document.getElementById('parsed-section').style.display = 'none'; clearInput(); }, 2000);
+}
+
+function upsertClient(order) {
+  const clients = getClients();
+  const idx = clients.findIndex(c => c.nombre.toLowerCase() === order.cliente.toLowerCase());
+  if (idx >= 0) {
+    clients[idx].ultimo_pedido = order.fecha;
+    clients[idx].total_pedidos = (clients[idx].total_pedidos || 0) + 1;
+    clients[idx].total_facturado = (clients[idx].total_facturado || 0) + order.total;
+    clients[idx].antiguedad_dias = daysBetween(clients[idx].primer_pedido, order.fecha);
+  } else {
+    clients.push({ nombre: order.cliente, primer_pedido: order.fecha, ultimo_pedido: order.fecha, total_pedidos: 1, total_facturado: order.total, antiguedad_dias: 0 });
+  }
+  saveClients(clients);
+}
+
+function daysBetween(d1, d2) {
+  try {
+    const p = s => { const parts = s.split('/'); return new Date(parts[2], parts[1]-1, parts[0]); };
+    return Math.round(Math.abs(p(d2) - p(d1)) / 86400000);
+  } catch { return 0; }
+}
+
+function clearInput() { document.getElementById('order-input').value = ''; }
+
+// ── RENDER ORDERS ────────────────────────────────────────
+function renderOrders() {
+  const orders = getOrders();
+  const wrap = document.getElementById('orders-wrap');
+  if (!orders.length) { wrap.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>No hay pedidos registrados aún.</div>'; return; }
+  let h = '<table><thead><tr><th>N°</th><th>Fecha</th><th>Cliente</th><th>Entrega</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody>';
+  [...orders].reverse().forEach(o => {
+    const dotClass = o.estado === 'Entregado' ? 'dot-done' : 'dot-pend';
+    const badgeClass = o.estado === 'Entregado' ? 'badge-done' : 'badge-pend';
+    h += `<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">${o.numero}</td>
+      <td>${o.fecha}</td>
+      <td>${o.cliente}</td>
+      <td>${o.tipo_entrega}</td>
+      <td style="font-family:'DM Mono',monospace;font-weight:600;">$${(o.total||0).toLocaleString('es-AR')}</td>
+      <td><span class="dot ${dotClass}"></span>${o.estado}</td>
+      <td><button class="btn" style="padding:4px 10px;font-size:11px;" onclick="toggleStatus(${o.id})">${o.estado === 'Entregado' ? 'Reabrir' : 'Marcar entregado'}</button></td>
+    </tr>`;
+  });
+  h += '</tbody></table>';
+  wrap.innerHTML = h;
+}
+
+function toggleStatus(id) {
+  const orders = getOrders();
+  const o = orders.find(x => x.id === id);
+  if (o) { o.estado = o.estado === 'Entregado' ? 'Pendiente' : 'Entregado'; saveOrders(orders); renderOrders(); }
+}
+
+// ── RENDER CLIENTS ───────────────────────────────────────
+function renderClients() {
+  const clients = getClients();
+  const wrap = document.getElementById('clients-wrap');
+  if (!clients.length) { wrap.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>No hay clientes registrados aún.</div>'; return; }
+  let h = '<table><thead><tr><th>Cliente</th><th>Primer pedido</th><th>Último pedido</th><th>Pedidos</th><th>Facturado</th><th>Antigüedad</th><th>Tipo</th></tr></thead><tbody>';
+  clients.slice().sort((a,b) => (b.total_facturado||0) - (a.total_facturado||0)).forEach(c => {
+    const ini = c.nombre.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2);
+    const isNew = (c.total_pedidos||0) <= 1;
+    const dias = c.antiguedad_dias || 0;
+    const antig = dias === 0 ? 'Hoy' : dias === 1 ? '1 día' : `${dias} días`;
+    h += `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar">${ini}</div>${c.nombre}</div></td>
+      <td>${c.primer_pedido}</td>
+      <td>${c.ultimo_pedido}</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace;">${c.total_pedidos||0}</td>
+      <td style="font-family:'DM Mono',monospace;font-weight:600;">$${(c.total_facturado||0).toLocaleString('es-AR')}</td>
+      <td>${antig}</td>
+      <td><span class="badge ${isNew?'badge-new':'badge-rec'}">${isNew?'Nuevo':'Recurrente'}</span></td>
+    </tr>`;
+  });
+  h += '</tbody></table>';
+  wrap.innerHTML = h;
+}
+
+// ── DASHBOARD ────────────────────────────────────────────
+function loadDashboard() {
+  const orders = getOrders();
+  const clients = getClients();
+  const totalRev = orders.reduce((s,o) => s + (o.total||0), 0);
+  const pending = orders.filter(o => o.estado === 'Pendiente').length;
+  const newClients = clients.filter(c => (c.total_pedidos||0) <= 1).length;
+  const avg = orders.length ? Math.round(totalRev / orders.length) : 0;
+
+  document.getElementById('metrics-wrap').innerHTML = `<div class="metrics">
+    <div class="metric"><div class="metric-label">Facturación total</div><div class="metric-value">$${totalRev.toLocaleString('es-AR')}</div></div>
+    <div class="metric"><div class="metric-label">Total pedidos</div><div class="metric-value">${orders.length}</div></div>
+    <div class="metric"><div class="metric-label">Clientes</div><div class="metric-value">${clients.length}</div><div class="metric-sub">${newClients} nuevos</div></div>
+    <div class="metric"><div class="metric-label">Pendientes</div><div class="metric-value">${pending}</div></div>
+    <div class="metric"><div class="metric-label">Ticket promedio</div><div class="metric-value">$${avg.toLocaleString('es-AR')}</div></div>
+  </div>`;
+
+  const prodCounts = {};
+  orders.forEach(o => (o.productos||[]).forEach(p => { const k = p.nombre || 'Sin nombre'; prodCounts[k] = (prodCounts[k]||0) + (p.cantidad||1); }));
+  const topProds = Object.entries(prodCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxP = topProds[0]?.[1] || 1;
+
+  if (topProds.length) {
+    document.getElementById('top-prods').innerHTML = topProds.map(([n,c]) =>
+      `<div class="top-item"><div class="top-item-name">${n}<div class="prog-bar"><div class="prog-fill" style="width:${Math.round(c/maxP*100)}%"></div></div></div><div class="top-item-count">${c}</div></div>`
+    ).join('');
+  }
+
+  const weeklyNew = {};
+  clients.forEach(c => {
+    if (!c.primer_pedido) return;
+    const parts = c.primer_pedido.split('/');
+    if (parts.length < 3) return;
+    try {
+      const d = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+      const wk = getWeek(d);
+      const key = `Sem ${wk.week} · ${wk.year}`;
+      weeklyNew[key] = (weeklyNew[key]||0) + 1;
+    } catch {}
+  });
+  const weeks = Object.entries(weeklyNew).slice(-8);
+  document.getElementById('weekly-clients').innerHTML = weeks.length
+    ? weeks.map(([w,c]) => `<div class="top-item"><span style="font-size:13px;">${w}</span><div class="top-item-count">${c} cliente${c>1?'s':''}</div></div>`).join('')
+    : '<div style="font-size:13px;color:var(--text3);padding:1rem 0;">Sin datos todavía.</div>';
+
+  document.getElementById('charts-grid').style.display = orders.length ? 'grid' : 'none';
+  document.getElementById('insights-card').style.display = orders.length ? 'block' : 'none';
+}
+
+async function getInsights() {
+  const btn = document.getElementById('insights-btn');
+  const out = document.getElementById('insights-out');
+  btn.disabled = true;
+  out.innerHTML = '<div class="loading"><div class="spinner"></div> Analizando datos del negocio...</div>';
+  const orders = getOrders();
+  const clients = getClients();
+  const system = `Sos un analista de ventas experto. Analizás datos y das 4 insights concisos y accionables en español. Usá bullet points con emoji. Sé directo y específico.`;
+  try {
+    const text = await callClaude([{ role:'user', content:`Analizá estos datos de ventas y dame insights:\nPedidos: ${JSON.stringify(orders.slice(-50))}\nClientes: ${JSON.stringify(clients)}` }], system);
+    out.innerHTML = text.replace(/\n/g, '<br>');
+  } catch(e) {
+    out.innerHTML = `<div class="feedback-err">Error: ${e.message}</div>`;
+  }
+  btn.disabled = false;
+}
+
+function getWeek(d) {
+  const onejan = new Date(d.getFullYear(), 0, 1);
+  return { week: Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7), year: d.getFullYear() };
+}
+
+// ── CONFIG ───────────────────────────────────────────────
+function loadConfig() {
+  const k = getApiKey();
+  if (k) document.getElementById('api-key-input').value = k;
+}
+
+function saveApiKey() {
+  const k = document.getElementById('api-key-input').value.trim();
+  if (!k) { alert('Ingresá una API Key'); return; }
+  localStorage.setItem('pv_apikey', k);
+  document.getElementById('api-feedback').innerHTML = '<div class="feedback-ok">API Key guardada correctamente.</div>';
+  document.getElementById('api-warning').style.display = 'none';
+  setTimeout(() => { document.getElementById('api-feedback').innerHTML = ''; }, 3000);
+}
+
+async function testApiKey() {
+  const fb = document.getElementById('api-feedback');
+  fb.innerHTML = '<div class="loading"><div class="spinner"></div> Probando conexión...</div>';
+  try {
+    await callClaude([{ role:'user', content:'Respondé solo: OK' }], 'Respondé solo la palabra OK.');
+    fb.innerHTML = '<div class="feedback-ok">Conexión exitosa. La IA está lista.</div>';
+  } catch(e) {
+    fb.innerHTML = `<div class="feedback-err">Error: ${e.message}</div>`;
+  }
+}
+
+function exportData() {
+  const data = { orders: getOrders(), clients: getClients(), exported: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `panel-ventas-${new Date().toISOString().slice(0,10)}.json`; a.click();
+}
+
+function clearAllData() {
+  if (!confirm('¿Borrar TODOS los datos? Esta acción no se puede deshacer.')) return;
+  localStorage.removeItem('pv_orders'); localStorage.removeItem('pv_clients');
+  alert('Datos borrados.');
+}
+
+// ── INIT ─────────────────────────────────────────────────
+if (!getApiKey()) document.getElementById('api-warning').style.display = 'flex';
+</script>
+</body>
+</html>
